@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/dashboard.html}">
+
+<head>
+</head>
+
+<body>
+<div layout:fragment="content" class="container my-4"
+     style="min-height: 600px; border: 1px solid rgba(128, 128, 128, 0.212);">
+    <div class="row mt-4 mb-2">
+        <div class="col-7 offset-2">
+            <form th:action="@{/task/search}" method="get"
+                  class="input-group">
+                <input hidden="hidden" name="size" th:value="${tasks.size}"/>
+                <input type="text" class="form-control" placeholder="Tên task"
+                       name="title" th:value="${title}" aria-label="Recipient's title"
+                       aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <!--                    <button style="font-size: 13px;" class="btn btn-outline-secondary">-->
+                    <!--                        <span class="fa fa-search"></span>-->
+                    <!--                    </button>-->
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                    <button type="reset" class="btn btn-primary" style="margin: 0 3px">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <form th:action="@{/task/add}" method="get">
+        <button class="btn btn-primary float-right m-3">Thêm mới</button>
+    </form>
+    <a th:href="@{/task/export/csv}">
+        <button type="button" class="btn btn-success float-right m-3">
+            <i class="fa fa-plus"></i>&nbsp;Xuất file CSV
+        </button>
+    </a>
+    <a th:href="@{/task/export/pdf}">
+        <button type="button" class="btn btn-success float-right m-3">
+            <i class="fa fa-plus"></i>&nbsp;Xuất file PDF
+        </button>
+    </a>
+    <a th:href="@{/task/export/excel}">
+        <button type="button" class="btn btn-success float-right m-3">
+            <i class="fa fa-plus"></i>&nbsp;Xuất file EXCEL
+        </button>
+    </a>
+
+    <div class="alert alert-success row col-12 ml-1" th:if="${message}"
+         th:text="${message}"></div>
+    <div class="alert alert-danger row col-12 ml-1" th:if="${error}"
+         th:text="${error}"></div>
+    <div class="row mt-5" th:if="${tasks.totalElements==0}">
+        <div class="col-12">
+            <h3 class="text-center" style="color:red">Không tìm thấy task</h3>
+        </div>
+    </div>
+    <div style="display: flex">
+        <label class="mt-4 pt-1" style="max-width: 10%" th:unless="${tasks.totalElements==0}">Trạng thái:</label>
+        <form class="col-3 mt-4" th:action="@{/task/page}"
+              method="get" th:unless="${tasks.totalElements==0}">
+            <input hidden="hidden" name="title" th:value="${title}"/> <input
+                hidden="hidden" name="page" th:value="0"/> <input
+                hidden="hidden" name="size" th:value="${tasks.size}"/>
+            <select class="custom-select" onchange="this.form.submit()" name="brand"
+                    style="width: 85%">
+                <option th:selected="${brand==0}" value="0">Tất cả</option>
+                <option th:each="item : ${taskStatus}"
+                        th:value="${item.id}"
+                        th:selected="${brand==item.id}">[[${item.name}]]
+                </option>
+            </select>
+        </form>
+    </div>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+        <tr class="text-center">
+            <th>Tiêu đề</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${tasks}" class="text-center">
+            <td th:text="${item.title}"></td>
+            <td th:text="${item.taskStatus.name}"></td>
+            <td width="30%">
+                <a th:href="@{'/task/viewtask/'+ ${item.task_id}}" class="btn btn-primary">Chi tiết </a>
+                <a th:href="@{'/task/edit/'+ ${item.task_id}}" class="btn btn-primary">Chỉnh sửa</a>
+                <button class="btn btn-danger">
+                    <a th:data-id="${item.task_id}" th:data-name="${item.title}"
+                       style="cursor: pointer"
+                       onclick="showConfigModalDialog(this.getAttribute('data-id'),
+                       this.getAttribute('data-name'))">Xóa</a>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <script>
+        function showConfigModalDialog(task_id, title) {
+            $('#taskTitle').text(title);
+            $('#yesOption').attr('href', '/task/delete/' + task_id);
+            $('#configmationId').modal('show');
+        }
+    </script>
+
+    <!-- Modal -->
+    <div class="modal" tabindex="-1" role="dialog" id="configmationId">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận</h5>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Bạn có muốn xoá task có tên "<span id="taskTitle"></span>"
+                        ?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a id="yesOption" type="button" class="btn btn-danger">Có</a>
+                    <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">Không
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav aria-label="Page navigation example form-inline"
+         th:if="${tasks.totalElements>0}">
+        <ul class="pagination float-right ml-4">
+            <li class="page-item"><a class="page-link"
+                                     th:href="@{'/task/page?page=0&title='+${title}+'&size='+${tasks.size}+'&brand='+${brand==null?0:brand}}"><i
+                    class="fa fa-step-backward"></i></a></li>
+            <li class="page-item"><a class="page-link"
+                                     th:href="@{'/task/page?page='+${(tasks.number-1 < 0) ? 0 : tasks.number-1}+'&title='+${title}+'&size='+${tasks.size}+'&brand='+${brand==null?0:brand}}"><i
+                    class="fa fa-chevron-left"></i></a></li>
+            <li class="page-item"><a class="page-link"
+                                     th:href="@{'/task/page?page='+${(tasks.number+1 > tasks.totalPages-1) ? tasks.totalPages-1 : tasks.number+1}+'&title='+${title}+'&size='+${tasks.size}+'&brand='+${brand==null?0:brand}}"><i
+                    class="fa fa-chevron-right"></i></a></li>
+            <li class="page-item"><a class="page-link"
+                                     th:href="@{'/task/page?page='+${tasks.totalPages-1}+'&title='+${title}+'&size='+${tasks.size}+'&brand='+${brand==null?0:brand}}"><i
+                    class="fa fa-step-forward"></i></a></li>
+        </ul>
+
+        <form th:action="@{/task/page}" method="get"
+              class="float-right p-2" style="font-weight: 350;">
+            <input hidden="hidden" name="title" th:value="${title}"/>
+            <input hidden="hidden" name="brand" th:value="${brand==null?0:brand}"/>
+            <input hidden="hidden" name="page" th:value="0"/>
+            <div class="form-inline">
+                <label>Hiển thị: </label> <select name="size"
+                                                  style="border: none; box-shadow: 0 0 1px gray; width: 50px; border-radius: 3px;"
+                                                  onchange="this.form.submit()">
+                <option th:selected="${tasks.size == 5}" value="5">5</option>
+                <option th:selected="${tasks.size == 10}" value="10">10</option>
+                <option th:selected="${tasks.size == 15}" value="15">15</option>
+            </select> <label> mục</label> <small class="ml-4 p-1">[[${tasks.number*tasks.size+1}]]-[[${(tasks.number*tasks.size+tasks.size
+                > tasks.totalElements) ? tasks.totalElements :
+                tasks.number*tasks.size+tasks.size}]] trong
+                [[${tasks.totalElements}]] mục</small>
+            </div>
+        </form>
+    </nav>
+</div>
+</body>
+
+</html>

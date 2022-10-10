@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.management.mapper.TaskMapper">
+
+    <resultMap id="mapResult" type="com.project.management.entity.Task">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="TaskStatus" column="TaskStatus"/>
+    </resultMap>
+
+    <select id="findAll" resultType="com.project.management.entity.Task" >
+        SELECT * FROM tasks
+    </select>
+
+    <select id="findByTitleContaining" resultType="com.project.management.entity.Task" >
+        SELECT * FROM tasks WHERE title LIKE '%' #{title} '%' AND task_id = #{task_id}
+    </select>
+
+
+</mapper>

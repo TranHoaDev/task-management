@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Đăng ký</title>
+    <!--<link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>-->
+    <link rel="stylesheet" href="css/style1.css">
+
+</head>
+<body>
+<div class="main">
+    <form th:action="@{/process_register}" th:object="${user}"
+          method="post" class="form" id="form-1">
+        <h3 class="heading">ĐĂNG KÝ</h3>
+
+        <div class="form-group">
+            <label for="name" class="form-label">Name: </label>
+            <input id="name" name="name" th:field="*{name}" type="text" placeholder="Nhập name" class="form-control">
+            <span style="color: red" class="form-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+          <!--&lt;!&ndash;  <span class="form-message"></span>&ndash;&gt;
+            <small th:if="${#fields.hasErrors('name')}" class="form-message">Hãy nhập đúng định dạng name</small>
+            <small th:if="${error}" th:text="${error}" class="form-message"></small>-->
+        </div>
+        <div class="form-group">
+            <label for="username" class="form-label">Username: </label>
+            <input id="username" name="username" th:field="*{username}" type="text" placeholder="Nhập username" class="form-control">
+            <span class="form-message"></span>
+        </div>
+        <div class="form-group">
+            <label for="password" class="form-label">Password:</label>
+            <input id="password" name="password" th:field="*{password}" type="password" placeholder="Nhập mật khẩu" class="form-control">
+            <span class="form-message"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="password_confirmation" class="form-label">config password:</label>
+            <input id="password_confirmation" name="password_confirmation" placeholder="Nhập lại mật khẩu" type="password" class="form-control">
+            <span class="form-message"></span>
+        </div>
+        <button type="submit" class="form-submit">Đăng ký</button>
+        <div style="margin-top:20px; margin-right: 10px; font-size: 15px" >
+            <a th:href="@{/login}">Đăng nhập tài khoản<a>
+        </div>
+    </form>
+
+</div>
+<<script src="js/main.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Validator({
+            form: '#form-1',
+            formGroupSelector: '.form-group',
+            errorSelector: '.form-message',
+            rules: [
+
+                Validator.isRequired('#username', 'Vui lòng nhập username đầy đủ'),
+                Validator.minLength('#password', 6),
+                Validator.isRequired('#password_confirmation'),
+                Validator.isConfirmed('#password_confirmation', function() {
+                    return document.querySelector('#form-1 #password').value;
+                }, 'Mật khẩu nhập không chính xác')
+            ],
+        });
+    });
+</script>
+</body>
+</html>
